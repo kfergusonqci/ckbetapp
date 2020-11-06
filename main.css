@@ -1,0 +1,30 @@
+.bordertest{
+    border: 1px solid red;
+}
+.center-text {
+    text-align: center;
+  }
+
+.margin5{
+    margin: 5px;
+}
+.marginRight5{
+    margin-right: 5px;
+}
+.marginLeft5{
+    margin-left: 5px;
+}
+.marginTop10{
+    margin-top: 10px;
+}
+.margin10{
+    margin: 10px;
+}
+.marginSide25{
+    margin-left: 25px;
+    margin-right: 25px;
+}
+
+.marginTop0{
+    margin-top: 0px;
+}
