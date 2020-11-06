@@ -1,62 +1,59 @@
 
+//Database references
 var usersRef = firebase.database().ref("users/");
 var activeBetsRef = firebase.database().ref("active-bets/");
 
-
-//update users in bet creation (player1)
+//updates users in bet creation Dropdown for player1 from database request
 var select = document.getElementById("selectHost");
 usersRef.once('value').then(function(snapshot) {
     snapshot.forEach(function(childSnapshot) {
       var key = childSnapshot.key;
       var name = childSnapshot.child("name").val();
 
-      //console.log(name);
       var el = document.createElement("option");
       el.textContent = name;
       el.value = key;
+
       select.appendChild(el);
-      
     });
   });
 
-  //update users in bet creation (player2)
+//updates users in bet creation Dropdown for player2 from database request
 var selectOpp = document.getElementById("selectOpponent");
 usersRef.once('value').then(function(snapshot) {
   snapshot.forEach(function(childSnapshot) {
     var key = childSnapshot.key;
     var name = childSnapshot.child("name").val();
 
-    //console.log(name);
     var el = document.createElement("option");
     el.textContent = name;
     el.value = key;
+
     selectOpp.appendChild(el);
-    
   });
 });
 
-  //update users in dues (Pay Up)
+  //update users in dues (Pay Up) dropdown
   var selectPlayer = document.getElementById("selectPlayerPayUp");
   usersRef.once('value').then(function(snapshot) {
     snapshot.forEach(function(childSnapshot) {
       var key = childSnapshot.key;
       var name = childSnapshot.child("name").val();
   
-      //console.log(name);
       var el = document.createElement("option");
       el.textContent = name;
       el.value = key;
+
       selectPlayer.appendChild(el);
     });
   });
 
-//update active bets
+//update active bets cards on change to children of active bets in database
 activeBetsRef.on('value', function(snapshot) {
   let container = document.getElementById("card-container");
   container.innerHTML = "";
   snapshot.forEach(function(childSnapshot) {
     
-    //console.log(childSnapshot.val());
     var bet = childSnapshot.val();
     let id = childSnapshot.key;
     
@@ -69,34 +66,19 @@ activeBetsRef.on('value', function(snapshot) {
     let outcome = bet.outcome;
     let wager = bet.wager;
 
-    //console.log(bet);
-    //console.log(id);
-
     buildActiveBetCard(id, player1, player1Name, player2, player2Name, time, topic, outcome, wager);
   });
 });
 
-// //get player name
-// function getPlayerName(id){
-  
-//   firebase.database().ref('users/' + id + '/name').once('value').then(function(snapshot){
-//     console.log(snapshot.val());
-//     var name = snapshot.val();
-//     console.log(name);
-//   });
-
-// }
-
-
+//Builds an active bet card
+//adds onClick listeners to buttons
 function buildActiveBetCard(id, player1, player1Name, player2, player2Name, time, topic, outcome, wager){
-
 
   let cardContainer = document.getElementById("card-container");
 
   let card = document.createElement('div');
   card.className = 'card margin10 rounded';
   card.id = id;
-  //card.className = 'border-dark rounded';
 
   let closeCard = document.createElement('a')
   closeCard.id = id;
@@ -160,7 +142,6 @@ function buildActiveBetCard(id, player1, player1Name, player2, player2Name, time
 
   card.appendChild(closeCard);
 
-  // cardBody.appendChild(title);
   cardBody.appendChild(betText);
   cardBody.appendChild(wagerText);
   cardBody.appendChild(outcomeText);
@@ -176,13 +157,10 @@ function buildActiveBetCard(id, player1, player1Name, player2, player2Name, time
   cardContainer.appendChild(card);
 }
 
+//Close out bet and update database with new info on who owes who
 function closeBet(id, winner){
   firebase.database().ref('active-bets/' + id).once('value').then(function(snapshot) {
     var bet = snapshot.val();
-
-    //console.log(id);
-    //console.log(snapshot);
-    //console.log(snapshot.val().player1);
 
     var loser = null;
     var loserName = null;
@@ -198,7 +176,6 @@ function closeBet(id, winner){
       loserName = bet.player1Name;
       winnerName = bet.player2Name;
     }
-    //console.log(loser);
 
     firebase.database().ref('users/' + loser +'/owes/').push({
       "bro": winnerName,
@@ -208,26 +185,31 @@ function closeBet(id, winner){
 
   deleteBet(id);
   payUpOnChange();
-
 }
 
+//delete a bet. Does not do business logic like in closeBet().
 function deleteBet(id){
   firebase.database().ref('active-bets/' + id).remove();
   document.getElementById(id).remove();
 }
 
+//delete a debt (row in Pay Up). Used when a user plays a debt in real life.
 function deleteDebt(userID,debtID){
   firebase.database().ref('users/' + userID + '/owes/' + debtID).remove();
 }
 
+//Updates debts table. Called when there is a change in debts. 
 function payUpOnChange(){
   let thead = document.getElementById("thead");
+
   thead.innerHTML='';
   let row = thead.insertRow();
+
   let cell1 = row.insertCell();
   cell1.style = 'text-align: center';
   let cell2 = row.insertCell();
   cell2.style = 'text-align: center';
+
   let text1 = document.createTextNode("Who you owe");
   let text2 = document.createTextNode("What you owe");
 
@@ -237,17 +219,19 @@ function payUpOnChange(){
   console.log(document.getElementById("selectPlayerPayUp").value);
   firebase.database().ref("users/" + document.getElementById("selectPlayerPayUp").value + "/owes/").once('value').then(function(snapshot) {
     snapshot.forEach(function(childSnapshot) {
+
       let row = thead.insertRow();
+
       let cell1 = row.insertCell();
       cell1.style = 'text-align: center';
       let cell2 = row.insertCell();
       cell2.style = 'text-align: center';
       let cell3 = row.insertCell();
+
       let text1 = document.createTextNode(childSnapshot.child("bro").val());
       let text2 = document.createTextNode(childSnapshot.child("item").val());
 
       let closeRow = document.createElement('a')
-      //closeRow.id = id;
       closeRow.className = 'close';
       closeRow.innerHTML = 'x';
       closeRow.style = 'text-align: right; padding-right: 10px'
@@ -259,19 +243,15 @@ function payUpOnChange(){
         return false;
       };
       
-
       cell1.appendChild(text1);
       cell2.appendChild(text2);
       cell3.appendChild(closeRow);
     });
   });
-  
-
-
 }
 //jquery
 
-// Listen to the form submit event
+// Listen to the form submit event to create a new bet.
 $('#placeBet').submit(function(evt) {
 
   
@@ -304,19 +284,8 @@ $('#placeBet').submit(function(evt) {
 
   document.forms['placeBet'].reset()
 })
-/*
-var select = document.getElementById("selectHost");
-var options = usersRef.on("value", function(data, prevChildKey)
 
-for(var i = 0; i < options.length; i++) {
-    var opt = options[i];
-    var el = document.createElement("option");
-    el.textContent = opt;
-    el.value = opt;
-    select.appendChild(el);
-}
-*/
-
+//used for 'x' icon to delete its parent when clicked
 $('remove').click(function(){ 
 	$(this).parent().remove() 
 }); 
