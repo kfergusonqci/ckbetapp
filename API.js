@@ -7,10 +7,10 @@ var activeBetsRef = firebase.database().ref("active-bets/");
 var select = document.getElementById("selectHost");
 usersRef.once('value').then(function(snapshot) {
     snapshot.forEach(function(childSnapshot) {
-      var key = childSnapshot.key;
-      var name = childSnapshot.child("name").val();
+      let key = childSnapshot.key;
+      let name = childSnapshot.child("name").val();
 
-      var el = document.createElement("option");
+      let el = document.createElement("option");
       el.textContent = name;
       el.value = key;
 
@@ -22,25 +22,30 @@ usersRef.once('value').then(function(snapshot) {
 var selectOpp = document.getElementById("selectOpponent");
 usersRef.once('value').then(function(snapshot) {
   snapshot.forEach(function(childSnapshot) {
-    var key = childSnapshot.key;
-    var name = childSnapshot.child("name").val();
+    let key = childSnapshot.key;
+    let name = childSnapshot.child("name").val();
 
-    var el = document.createElement("option");
+    let el = document.createElement("option");
     el.textContent = name;
     el.value = key;
 
     selectOpp.appendChild(el);
   });
+
+  let AddUserOption = document.createElement("option");
+  let AddUser = document.createElement("a");
+  AddUserOption.innerHTML = '<a href=""> </a>';
+
 });
 
   //update users in dues (Pay Up) dropdown
   var selectPlayer = document.getElementById("selectPlayerPayUp");
   usersRef.once('value').then(function(snapshot) {
     snapshot.forEach(function(childSnapshot) {
-      var key = childSnapshot.key;
-      var name = childSnapshot.child("name").val();
+      let key = childSnapshot.key;
+      let name = childSnapshot.child("name").val();
   
-      var el = document.createElement("option");
+      let el = document.createElement("option");
       el.textContent = name;
       el.value = key;
 
@@ -69,6 +74,13 @@ activeBetsRef.on('value', function(snapshot) {
     buildActiveBetCard(id, player1, player1Name, player2, player2Name, time, topic, outcome, wager);
   });
 });
+
+//adds a user to the DB
+function addUser(username){
+  firebase.database().usersRef.push({
+    "name": username
+  });
+}
 
 //Builds an active bet card
 //adds onClick listeners to buttons
@@ -284,6 +296,15 @@ $('#placeBet').submit(function(evt) {
 
   document.forms['placeBet'].reset()
 })
+
+function openHamburger() {
+  var x = document.getElementById("myLinks");
+  if (x.style.display === "block") {
+    x.style.display = "none";
+  } else {
+    x.style.display = "block";
+  }
+}
 
 //used for 'x' icon to delete its parent when clicked
 $('remove').click(function(){ 
